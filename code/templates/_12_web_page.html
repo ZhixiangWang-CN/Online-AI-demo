@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"> #meta参数意思，字符编码设为UTF-8
+        <title>实现需求web</title> #对应页面标题
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> #从网络下载并运用jQuery库
+        <script>
+            $(document).ready(function(){   #$符就是find element
+                $("#image_file").change(function(){ #不管什么标签，只要id="image_file"，就找到下面input这个元素，只要发生改变change，函数function()作为参数传入change这个方法里
+                    var file = $(this)[0].files[0]; #取到文件
+                    $(".img").attr("src", URL.createObjectURL(file));
+                    });   # #号表示id=,.号表示class=
+                $("button#button_1").click(function(){ #当被点击促发function()函数
+                    var formData = new FormData($("#upload_form")[0]);
+#找("#upload_form")这个元素，结果是一个list，找到第一个。$("#upload_form")[0]这个作为参数传给FormData，FormData变为对象再赋值给formData变量，formData变量在下面被调用，不能写在函数外，唯独python可以
+                    $.ajax({ #字典类型
+                        url: "/predict_image", #对应.py文件中"/predict_image"发起POST请求
+                        type: 'POST',
+                        data: formData, #发送表格数据
+                        processData: false,
+                        contentType: false,
+                        success: function(return_data){ #如果发出请求成功传回结果
+                            $("#image_className").text("图片中物体的种类名称：" + return_data["predict_className"]) #找到"#image_className"标签，改文本内容为后面
+                            },  #"predict_className"是个键，找到对应值
+                        error: function(return_data){  #返回的状态码是404
+                            alert("上传失败!")
+                            }
+                        })   
+                    });
+                }); 
+        </script>
+    </head>
+    
+    <body>  #<body>里是网页显示的内容
+        <form id="upload_form" enctype="multipart/form-data"> #</form>做表格，方便做post请求
+            <input type="file" name="input_image" id="image_file"/>
+        </form> 
+        <div> #<div>就是分开一行
+            <img src="" class="img" />
+        </div>
+        <button id="button_1">提交信息</button> #设置一个按钮显示提交信息
+        <p id="image_className"></p> #p代表文本
+    </body>
+</html>
